@@ -7,8 +7,8 @@ const {globSync} = require("glob");
 const themeCommentRegex = /\/\*[\s\S]*?\*\//g;
 
 async function getTheme() {
-  let themeUrl = process.env.THEME;
-  if (themeUrl) {
+  let themeUrl = process.env.THEME || '';
+  // if (themeUrl) {
     //https://forum.obsidian.md/t/1-0-theme-migration-guide/42537
     //Not all themes with no legacy mark have a theme.css file, so we need to check for it
     try {
@@ -21,7 +21,13 @@ async function getTheme() {
       }
     }
 
-    const res = await axios.get(themeUrl);
+    let res = await axios.get(themeUrl);
+    let state = fs.existsSync("src/site/styles/_theme.css");
+    if(state){
+     res = fs.readFileSync('src/site/styles/_theme.css',{encoding:'utf-8'});
+    }else{
+      res = res.data;
+    }
     try {
       const existing = globSync("src/site/styles/_theme.*.css");
       existing.forEach((file) => {
@@ -29,7 +35,7 @@ async function getTheme() {
       });
     } catch {}
     let skippedFirstComment = false;
-    const data = res.data.replace(themeCommentRegex, (match) => {
+    const data = res.replace(themeCommentRegex, (match) => {
       if (skippedFirstComment) {
         return "";
       } else {
@@ -41,7 +47,7 @@ async function getTheme() {
     hashSum.update(data);
     const hex = hashSum.digest("hex");
     fs.writeFileSync(`src/site/styles/_theme.${hex.substring(0, 8)}.css`, data);
-  }
+  // }
 }
 
 getTheme();
