@@ -10,4 +10,15 @@ body {
     //  h1 {
     //   color: black;
     //  }
+    table{
+      table-layout:fixed;
+      th {
+        white-space: nowrap !important;
+        min-width: 150px;
+        max-width: 500px;
+      }
+      td{
+        vertical-align: top;
+      }
+    }
 }
